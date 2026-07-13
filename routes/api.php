@@ -20,8 +20,13 @@ Route::delete('/delete/patner', [PatnersController::class, 'DeletePatner']);
 Route::patch('/patch/patner/{method}', [PatnersController::class, 'PublishPatner']);
 
 
-// Practice Areas
-Route::post("add/new/practice", [ServicesController::class, "AddService"]);
+// Practice Areas / Services
+Route::post("/add/new/practice", [ServicesController::class, "AddService"]);
+Route::get("/get/practices", [ServicesController::class, "GetAllServices"]);
+Route::get("/practice/{slug}", [ServicesController::class, "GetService"]);
+Route::post("/update/practice", [ServicesController::class, "UpdateService"]);
+Route::delete("/delete/practice", [ServicesController::class, "DeleteService"]);
+Route::patch("/patch/practice/{method}", [ServicesController::class, "PublishService"]);
 
 
 
