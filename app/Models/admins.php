@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class admins extends Model implements JWTSubject{
+class admins extends Authenticatable implements JWTSubject{
     /** @use HasFactory<\Database\Factories\AdminsFactory> */
     use HasFactory;
      public function getJWTIdentifier(){
@@ -18,5 +19,5 @@ class admins extends Model implements JWTSubject{
         return [];
     }
 
-    protected $fillable = ["name","email","password","phoneNumber","role","password"];
+    protected $fillable = ["name","email","password","phoneNumber","role","password","profilePhoto"];
 }

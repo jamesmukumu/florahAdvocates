@@ -4,12 +4,15 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\PatnersController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Middleware\AuthMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/create/new/admin', [AdminController::class, 'registerAdmin']);
+
 Route::post('/login/admin', [AdminController::class, 'handleLogin']);
 
 
+//protected routes 
+Route::middleware(AuthMiddleware::class)->group(function(){
 
 // patners
 Route::post('/add/new/partner', [PatnersController::class, 'CreatePatners']);
@@ -29,7 +32,6 @@ Route::delete("/delete/practice", [ServicesController::class, "DeleteService"]);
 Route::patch("/patch/practice/{method}", [ServicesController::class, "PublishService"]);
 
 
-
 //articles category
 Route::get("/article/{slug}", [ArticlesController::class, "GetArticle"]);
 Route::post("/add/new/article/category", [ArticlesController::class, "CreateArticlesCategory"]);
@@ -39,3 +41,10 @@ Route::post("/update/article", [ArticlesController::class, "UpdateArticle"]);
 Route::get("/get/articles", [ArticlesController::class, "GetAllArticles"]);
 Route::patch("/patch/article/{method}", [ArticlesController::class, "PublishArticle"]);
 
+
+Route::post('/create/new/admin', [AdminController::class, 'registerAdmin']);
+});
+
+
+
+Route::post("/add/new/enquiry",[AdminController::class,"SaveEnquiry"]);

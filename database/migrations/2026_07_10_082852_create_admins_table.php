@@ -16,12 +16,13 @@ return new class extends Migration
             $table->timestamps();
             $table->string("name")->unique(true)->nullable(false);
             $table->string("email")->unique(true)->nullable(false);
-            $table->enum("role",["Advocate","Other"])->default("Advocate")->nullable(true);
+            $table->enum("role",['normal user','super user'])->default("normal user")->nullable(false);
             $table->string("phoneNumber")->nullable(false)->unique(true);
             $table->string("password")->nullable(false);
+            $table->tinyText("profilePhoto")->nullable(true);
 
         });
-    }
+    }  
 
     /**
      * Reverse the migrations.
