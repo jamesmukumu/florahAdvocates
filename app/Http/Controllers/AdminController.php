@@ -95,8 +95,9 @@ return response()->json([
 }catch(\Exception $err){
 Log::error($err->getMessage());
 return response()->json([
-"message"=>"Something has gone wrong"
-],200);
+"message"=>"Something has gone wrong",
+"error"=>$err->getMessage()
+],500);
 }}
 
 
