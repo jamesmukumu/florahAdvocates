@@ -42,9 +42,7 @@ Route::get("/get/articles", [ArticlesController::class, "GetAllArticles"]);
 Route::patch("/patch/article/{method}", [ArticlesController::class, "PublishArticle"]);
 
 
-Route::post('/create/new/admin', [AdminController::class, 'registerAdmin']);
 });
 
-
-
+Route::post('/create/new/admin', [AdminController::class, 'registerAdmin']);
 Route::post("/add/new/enquiry",[AdminController::class,"SaveEnquiry"]);
