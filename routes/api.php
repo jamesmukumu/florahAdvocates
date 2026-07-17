@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/login/admin', [AdminController::class, 'handleLogin']);
-
+Route::post("/request/reset/password",[AdminController::class,"requestResetPassword"]);
+Route::post("/reset/password/{id}",[AdminController::class,"CompleteReset"]);
 
 //protected routes 
 Route::middleware(AuthMiddleware::class)->group(function(){
 
+Route::get("/get/user/profile",[AdminController::class,"Getuserprofile"]);
+Route::get("/get/enquiries",[AdminController::class,"GetEnquiries"]);
 // patners
 Route::post('/add/new/partner', [PatnersController::class, 'CreatePatners']);
 Route::get('/get/patners', [PatnersController::class, 'GetAllPatners']);

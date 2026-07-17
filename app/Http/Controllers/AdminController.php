@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\enquirymail;
+use App\Mail\resetpassword;
 use App\Models\admins;
 use App\Models\enquiries;
 use Illuminate\Http\Request;
@@ -11,11 +12,32 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use RyanChandler\LaravelCloudflareTurnstile\Rules\Turnstile;
+use Symfony\Component\Uid\Uuid;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class AdminController extends Controller{
+
+interface AdminsInterface
+{
+    public function validator(Request $request);
+}
+class AdminController extends Controller implements AdminsInterface {
+  public function validator(Request $request)
+    {
+        try {
+            $tokenHeader = $request->header("Authorization");
+            $actualToken = substr($tokenHeader, 7);
+            if (!$tokenHeader || !$actualToken) {
+                throw new \Exception("Unauthorized", 401);
+            }
+            $payload = JWTAuth::setToken($actualToken)->getPayload();
+            return $payload["sub"];
+        } catch (\Exception $err) {
+            throw new \Exception($err->getMessage(), 500);
+        }
+    }
 
 public function registerAdmin(Request $request){
 try{
@@ -143,5 +165,116 @@ return response()->json([
 }}
 
 
+
+
+
+
+//reset password 
+public function requestResetPassword(Request $request){
+try{
+$validatedRequest = $request->validate([
+"email"=>"required|exists:admins,email"
+]);
+$admin = admins::where("email",$validatedRequest["email"])->first();
+$uuid_string =(string) Str::uuid();
+Redis::hMset("resets:".$uuid_string,[
+"email"=>$admin->email,
+"id"=>$admin->id
+]);
+Redis::expire("resets:".$uuid_string,10*60);
+
+$mailer = new resetpassword("https://portal.floracadvocates.co.ke/complete/reset-password/".$uuid_string);
+Mail::to($admin->email)->send($mailer);
+return response()->json([
+"success"=>true,
+"message"=>'Reset Link has been sent to your email'
+]);
+}catch(ValidationException $err){
+Log::error($err->getMessage());
+return response()->json([
+"success"=>false,
+"message"=>collect($err->errors())->flatten()->first()
+]);
+}catch(\Exception $err){
+Log::error($err->getMessage());
+return response()->json([
+"success"=>false,
+"message"=>"something went wrong"
+],500);
+}}
+
+
+
+public function CompleteReset(Request $request){
+try{
+$validatedRequest = $request->validate([
+"password"=>"string|min:6"
+]);
+
+$uuid = $request->route('id');
+$key = 'resets:'.$uuid;
+$infos = Redis::hGetAll($key);
+$admin = admins::find($infos["id"]);
+$match = Hash::check($validatedRequest["password"],$admin->password);
+if($match){
+return response()->json([
+'success'=>false,
+'message'=>'New password cannot be the same as the old one'
+]);
+}
+$new_password = Hash::make($validatedRequest["password"]);
+$admin->password = $new_password;
+$admin->save();
+return response()->json([
+'success'=>true,
+'message'=>'Password Updated'
+]);
+}catch(ValidationException $err){
+Log::error($err->getMessage());
+return response()->json([
+"success"=>false,
+"message"=>collect($err->errors())->flatten()->first()
+]);
+}catch(\Exception $err){
+Log::error($err->getMessage());
+return response()->json([
+'success'=>false,
+'message'=>'Something went Wrong'
+],500);
+}}
+
+
+public function Getuserprofile(Request $request){
+try{
+$user_id = $this->validator($request);
+$admins = admins::select(["name","email","profilePhoto"])->find($user_id);
+return response()->json([
+'data'=>$admins,
+"success"=>true
+]);
+}catch(\Exception $err){
+Log::error($err->getMessage());
+return response()->json([
+'message'=>'Something went wrong'
+],500);
+}}
+
+
+
+public function GetEnquiries(Request $request){
+try{
+$enquiries = enquiries::all();
+return response()->json([
+'success'=>true,
+'data'=>$enquiries
+]);
+}catch(\Exception $err){
+Log::error($err->getMessage());
+return response()->json([
+'success'=>false,
+'message'=>'Something Went Wrong'
+]);
+}
+}
 
 }
