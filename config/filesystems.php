@@ -34,10 +34,11 @@ return [
             'driver' => 'local',
             'root' => public_path(),
             'visibility' => 'public',
-            'serve' => true,
+        
             'throw' => false,
             'report' => false,
         ],
+
 
         's3' => [
             'driver' => 's3',
