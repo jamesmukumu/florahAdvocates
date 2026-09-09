@@ -53,7 +53,7 @@ class ServicesController extends Controller implements ServicesInterface
                 ], 200);
             }
 
-            $path = $request->file("practiceAreaImage")->store("practices", "public");
+            $path = $request->file("practiceAreaImage")->store("practices", "r2");
             $validatedRequest["practiceAreaImage"] = $path;
             $user_id = $this->validator($request);
             $validatedRequest["admins_id"] = $user_id;
@@ -145,7 +145,7 @@ class ServicesController extends Controller implements ServicesInterface
             ]);
 
             if ($request->hasFile('practiceAreaImage')) {
-                $path = $request->file('practiceAreaImage')->store('practices', 'public');
+                $path = $request->file('practiceAreaImage')->store('practices', 'r2');
                 $validatedRequest['practiceAreaImage'] = $path;
             }
 

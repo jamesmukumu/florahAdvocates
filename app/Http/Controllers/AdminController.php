@@ -53,7 +53,7 @@ $hashedPassword = Hash::make($validatedRequest["password"]);
 $admin = new admins();
 $profilePhoto= '';
 if($request->hasFile("profilePhoto")){
-$profilePhoto = $request->file("profilePhoto")->store("profiles","public");
+$profilePhoto = $request->file("profilePhoto")->store("profiles","r2");
 }
 
 $validatedRequest['password'] = $hashedPassword;
@@ -169,7 +169,7 @@ return response()->json([
 
 
 
-//reset password 
+//reset password
 public function requestResetPassword(Request $request){
 try{
 $validatedRequest = $request->validate([
@@ -276,5 +276,6 @@ return response()->json([
 ]);
 }
 }
+
 
 }

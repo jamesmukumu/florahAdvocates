@@ -7,6 +7,7 @@ use App\Models\articlesCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -86,7 +87,15 @@ class ArticlesController extends Controller implements ArticlesInterface
                     "message" => "Article Image Should be provided"
                 ]);
             }
-            $image_path = $request->file("articleImage")->store("articles", "public");
+            $image_path = $request->file("articleImage")->store("articles", "r2");
+            if (!$image_path) {
+                Log::error('R2 upload failed for articleImage during CreateArticle');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload image to storage'
+                ], 500);
+            }
+            // store path in DB; use Storage::disk('r2')->url($path) when exposing externally
             $validatedRequest["articleImage"] = $image_path;
             $validatedRequest["admins_id"] = $admins_id;
             articles::create($validatedRequest);
@@ -134,7 +143,7 @@ class ArticlesController extends Controller implements ArticlesInterface
             $articles = articles::all();
             return response()->json([
                 "success" => true,
-                "data" => $articles   
+                "data" => $articles
             ]);
         } catch (\Exception $err) {
             Log::error($err->getMessage());
@@ -146,10 +155,11 @@ class ArticlesController extends Controller implements ArticlesInterface
     }
 
     //Get article by slug
-    public function GetArticle(Request $request){
+    public function GetArticle(Request $request)
+    {
         try {
             $slug = $request->route("slug");
-            $article = articles::where("slug",$slug)->get()[0];
+            $article = articles::where("slug", $slug)->get()[0];
             if (!$article) {
                 return response()->json([
                     "success" => false,
@@ -169,14 +179,14 @@ class ArticlesController extends Controller implements ArticlesInterface
         }
     }
 
-   
+
     public function UpdateArticle(Request $request)
     {
         try {
             $id = $request->query("id");
             $article = articles::find($id);
             if (!$article) {
-                return response()->json([ 
+                return response()->json([
 
                     "success" => false,
                     "message" => "Article not found"
@@ -194,7 +204,14 @@ class ArticlesController extends Controller implements ArticlesInterface
             ]);
 
             if ($request->hasFile("articleImage")) {
-                $image_path = $request->file("articleImage")->store("articles", "public");
+                $image_path = $request->file("articleImage")->store("articles", "r2");
+                if (!$image_path) {
+                    Log::error('R2 upload failed for articleImage during UpdateArticle (id: ' . $id . ')');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to upload image to storage'
+                    ], 500);
+                }
                 $validatedRequest["articleImage"] = $image_path;
             }
 
@@ -265,10 +282,10 @@ class ArticlesController extends Controller implements ArticlesInterface
             }
 
             $admin_id = $this->validator($request);
-            if($method == 'publish'){
-            $article->update(["published" => true]);
-            }else{
-            $article->update(["published" => false]);
+            if ($method == 'publish') {
+                $article->update(["published" => true]);
+            } else {
+                $article->update(["published" => false]);
             }
             return response()->json([
                 "success" => true,

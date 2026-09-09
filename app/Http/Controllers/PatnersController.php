@@ -66,7 +66,7 @@ class PatnersController extends Controller implements PatnersInterface
                 ]);
             }
 
-            $path = $request->file("patnersImage")->store('patners', 'public');
+            $path = $request->file("patnersImage")->store('patners', 'r2');
             $validatedRequest['patnersImage'] = $path;
             patners::create($validatedRequest);
             return response()->json([
@@ -167,7 +167,7 @@ class PatnersController extends Controller implements PatnersInterface
             ]);
 
             if ($request->hasFile('patnersImage')) {
-                $path = $request->file('patnersImage')->store('patners', 'public');
+                $path = $request->file('patnersImage')->store('patners', 'r2');
                 $validatedRequest['patnersImage'] = $path;
             }
 

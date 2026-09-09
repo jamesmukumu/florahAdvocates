@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
@@ -13,7 +12,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'r2'),
 
     /*
     |--------------------------------------------------------------------------
@@ -29,16 +28,14 @@ return [
     */
 
     'disks' => [
-
         'public' => [
             'driver' => 'local',
             'root' => public_path(),
             'visibility' => 'public',
-        
+
             'throw' => false,
             'report' => false,
         ],
-
 
         's3' => [
             'driver' => 's3',
@@ -52,7 +49,20 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('CLOUDFLARE_ACCESS_KEY_ID'),
+            'secret' => env('CLOUDFLARE_SECRET_ACCESS_KEY'),
+            'region' => env('CLOUDFLARE_DEFAULT_REGION'),
+            'bucket' => env('CLOUDFLARE_BUCKET'),
+            'url' => env('CLOUDFLARE_URL'),
+            'endpoint' => env('CLOUDFLARE_ENDPOINT'),
+            'use_path_style_endpoint' => env('CLOUDFLARE_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'public',
+            // Throw exceptions from Flysystem so we see the real SDK error during tests
+            'throw' => true,
+            'report' => false,
+        ],
     ],
 
     /*
@@ -69,5 +79,4 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
     ],
-
 ];
